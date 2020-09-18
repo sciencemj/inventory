@@ -1,0 +1,11 @@
+name: inventory
+version: 1.0.0
+main: inventoryPlugin.Main
+description: inventory plugin
+
+commands:
+  changename:
+    description: changename
+    usage: changename + "name"
+  inv:
+    description: inventory
