@@ -206,9 +206,9 @@ public class Main extends JavaPlugin implements Listener {
         if (Main.abillity.isEmpty() == false) {
             if (abillity.get(p) == 0) {
                 //e.getDamager().sendMessage("damaged1" + ((Player) e.getDamager()).getInventory().getItemInOffHand());
-                if ((p.getInventory().getItemInMainHand().equals(new ItemStack(Material.DIAMOND_SWORD, 1))) && (((Player) e.getDamager()).getInventory().getItemInOffHand().equals(new ItemStack(Material.DIAMOND_SWORD, 1)))) {
+                if ((p.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_SWORD)) && (((Player) e.getDamager()).getInventory().getItemInOffHand().getType().equals(Material.DIAMOND_SWORD))) {
                     //p.sendMessage("damaged");
-                    PacketPlayOutAnimation play = new PacketPlayOutAnimation(((CraftPlayer)p).getHandle(), 4);
+                    PacketPlayOutAnimation play = new PacketPlayOutAnimation(((CraftPlayer)p).getHandle(), 5);
                     ((CraftPlayer) p).getHandle().playerConnection.sendPacket(play);
                     if (e.getEntity() instanceof LivingEntity) {
                         ((LivingEntity) e.getEntity()).damage(7);
@@ -223,10 +223,10 @@ public class Main extends JavaPlugin implements Listener {
             } else if (abillity.get(p) == 2) {
                 e.getEntity().getWorld().createExplosion(e.getEntity().getLocation(), 0.1f);
             } else if (abillity.get(p) == 3) {
-                if ((p.getHealth() + e.getDamage()) > p.getMaxHealth()) {
+                if ((p.getHealth() + e.getDamage()/2) > p.getMaxHealth()) {
                     p.setHealth(p.getMaxHealth());
                 } else {
-                    p.setHealth(p.getHealth() + e.getDamage());
+                    p.setHealth(p.getHealth() + e.getDamage()/2);
                 }
             }
         }
