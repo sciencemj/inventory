@@ -72,7 +72,11 @@ public class Main extends JavaPlugin implements Listener {
         meta.setDisplayName(name);
         if (material.equals(Material.IRON_PICKAXE)) {
             meta.addEnchant(Enchantment.DIG_SPEED, 3, true);
-        }
+        }/*else if (material.equals(Material.CROSSBOW)){
+            meta.addEnchant(Enchantment.QUICK_CHARGE, 5,true);
+            meta.addEnchant(Enchantment.PIERCING, 5,true);
+            meta.addEnchant(Enchantment.MULTISHOT, 3,true);
+        }*/
         itemStack.setItemMeta(meta);
         return itemStack;
     }
@@ -99,6 +103,7 @@ public class Main extends JavaPlugin implements Listener {
                 Player p = ((Player) sender).getPlayer();
                 p.getInventory().addItem(menu);
                 if (strings.length == 1){
+                    //p.getInventory().addItem(createItem(Material.CROSSBOW, "bbbboooow"));
                     abillity.put(p, Integer.parseInt(strings[0]));
                 }
             }
@@ -164,14 +169,15 @@ public class Main extends JavaPlugin implements Listener {
         Player p = e.getPlayer();
         if (abillity.get(p) == 4) {
             int slot = e.getNewSlot();
-            PotionEffect effect = new PotionEffect(PotionEffectType.SLOW, 99999, 300);
-            PotionEffect effect1 = new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 99999, 2);
-            PotionEffect effect2 = new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 99999, 2);
+            PotionEffect effect = new PotionEffect(PotionEffectType.SLOW, 99999, 300,false,false);
+            PotionEffect effect1 = new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 99999, 2,false,false);
+            PotionEffect effect2 = new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 99999, 3,false,false);
             if (p.getInventory().getItem(slot) == null){
                 p.removePotionEffect(PotionEffectType.SLOW);
                 p.removePotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
                 p.removePotionEffect(PotionEffectType.INCREASE_DAMAGE);
                 p.removePotionEffect(PotionEffectType.JUMP);
+                p.removePotionEffect(PotionEffectType.HUNGER);
                 return;
             }
             if (p.getInventory().getItem(slot).getType().equals(Material.SHIELD)) {
@@ -179,12 +185,14 @@ public class Main extends JavaPlugin implements Listener {
                 p.addPotionEffect(effect);
                 p.addPotionEffect(effect1);
                 p.addPotionEffect(effect2);
-                p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 999999999, 250));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 999999999, 250,false,false));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, 999999999, 9,false,false));
             } else {
                 p.removePotionEffect(PotionEffectType.SLOW);
                 p.removePotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
                 p.removePotionEffect(PotionEffectType.INCREASE_DAMAGE);
                 p.removePotionEffect(PotionEffectType.JUMP);
+                p.removePotionEffect(PotionEffectType.HUNGER);
             }
         }
     }
