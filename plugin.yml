@@ -9,3 +9,5 @@ commands:
     usage: changename + "name"
   inv:
     description: inventory
+  spawnset:
+    description: set spawn
