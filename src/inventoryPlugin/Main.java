@@ -246,7 +246,7 @@ public class Main extends JavaPlugin implements Listener {
                     if (r.nextInt(2) == 0) {
                         p.setHealth(0);
                     } else {
-                        ((EntityLiving) e.getEntity()).setHealth(0);
+                        ((LivingEntity) e.getEntity()).setHealth(0);
                     }
                 }
             }
