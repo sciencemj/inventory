@@ -1,5 +1,6 @@
 package inventoryPlugin;
 import net.minecraft.server.v1_16_R2.Entity;
+import net.minecraft.server.v1_16_R2.EntityLiving;
 import net.minecraft.server.v1_16_R2.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -14,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerChangedMainHandEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -32,7 +34,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class Main extends JavaPlugin implements Listener {
-    private String[] abillitylist = new String[]{"이도류", "슬로우", "폭파범", "흡혈귀", "방패병", "무능력", "무능력", "무능력", "무능력", "무능력"};
+    private String[] abillitylist = new String[]{"이도류", "슬로우", "폭파범", "흡혈귀", "방패병", "궁수", "도박꾼", "무능력", "무능력", "무능력"};
     private Inventory inv;
     private ItemStack menu;
     private ItemStack coin;
@@ -99,13 +101,15 @@ public class Main extends JavaPlugin implements Listener {
                 ((Player) sender).setCustomNameVisible(true);
             }
         } else if (cmd.getName().equals("inv")) {
+            Player p = ((Player) sender).getPlayer();
             if (sender instanceof Player) {
-                Player p = ((Player) sender).getPlayer();
-                p.getInventory().addItem(menu);
                 if (strings.length == 1){
                     //p.getInventory().addItem(createItem(Material.CROSSBOW, "bbbboooow"));
                     abillity.put(p, Integer.parseInt(strings[0]));
+                    return false;
                 }
+                p.getInventory().addItem(menu);
+
             }
         } else if (cmd.getName().equals("spawnset")) {
             spawn = ((Player) sender).getLocation();
@@ -212,7 +216,7 @@ public class Main extends JavaPlugin implements Listener {
     public void onHit(EntityDamageByEntityEvent e) {
         Player p = ((Player) e.getDamager());
         if (Main.abillity.isEmpty() == false) {
-            if (abillity.get(p) == 0) {
+            if (abillity.get(p) == 0) {//이도류
                 //e.getDamager().sendMessage("damaged1" + ((Player) e.getDamager()).getInventory().getItemInOffHand());
                 if ((p.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_SWORD)) && (((Player) e.getDamager()).getInventory().getItemInOffHand().getType().equals(Material.DIAMOND_SWORD))) {
                     //p.sendMessage("damaged");
@@ -223,20 +227,38 @@ public class Main extends JavaPlugin implements Listener {
                         //e.getDamager().sendMessage("damaged2");
                     }
                 }
-            } else if (abillity.get(p) == 1) {
+            } else if (abillity.get(p) == 1) {//슬로우
                 if (e.getEntity() instanceof LivingEntity) {
                     p.sendMessage("slowed");
                     ((LivingEntity) e.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 50, 5));
                 }
-            } else if (abillity.get(p) == 2) {
+            } else if (abillity.get(p) == 2) {//폭파범
                 e.getEntity().getWorld().createExplosion(e.getEntity().getLocation(), 0.1f);
-            } else if (abillity.get(p) == 3) {
+            } else if (abillity.get(p) == 3) {//흡혈귀
                 if ((p.getHealth() + e.getDamage()/2) > p.getMaxHealth()) {
                     p.setHealth(p.getMaxHealth());
                 } else {
                     p.setHealth(p.getHealth() + e.getDamage()/2);
                 }
+            } else if (abillity.get(p) == 6){//도박꾼
+                Random r = new Random();
+                if (p.getInventory().getItemInMainHand().getType().equals(Material.IRON_INGOT)) {
+                    if (r.nextInt(2) == 0) {
+                        p.setHealth(0);
+                    } else {
+                        ((EntityLiving) e.getEntity()).setHealth(0);
+                    }
+                }
             }
+        }
+    }
+
+    @EventHandler
+    public void shootArrow(EntityShootBowEvent e){
+        Player p = ((Player)e.getEntity());
+        if (abillity.get(p) == 5){
+            e.getProjectile().setVelocity(e.getProjectile().getVelocity().multiply(3));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40,1,false, false,false));
         }
     }
 
