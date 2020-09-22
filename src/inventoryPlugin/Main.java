@@ -1,5 +1,4 @@
 package inventoryPlugin;
-import net.minecraft.server.v1_16_R2.Entity;
 import net.minecraft.server.v1_16_R2.EntityLiving;
 import net.minecraft.server.v1_16_R2.PacketPlayOutAnimation;
 import org.bukkit.*;
@@ -7,20 +6,14 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.PlayerChangedMainHandEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -34,12 +27,14 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class Main extends JavaPlugin implements Listener {
-    private String[] abillitylist = new String[]{"이도류", "슬로우", "폭파범", "흡혈귀", "방패병", "궁수", "도박꾼", "무능력", "무능력", "무능력"};
+    private String[] abillitylist = new String[]{"이도류", "슬로우", "폭파범", "흡혈귀", "방패병", "궁수", "도박꾼", "신체강화", "무능력", "무능력"};
     private Inventory inv;
     private ItemStack menu;
     private ItemStack coin;
     private Location spawn;
     public static HashMap<Player, Integer> abillity = new HashMap<Player, Integer>();
+    public static HashMap<Player, Integer> timer = new HashMap<Player, Integer>();
+    private Entity projectile;
 
     @Override
     public void onEnable() {
@@ -49,8 +44,9 @@ public class Main extends JavaPlugin implements Listener {
         this.getCommand("spawnset").setExecutor(this);
         PluginDescriptionFile file = this.getDescription();
         System.out.println(file.getName() + "version:" + file.getVersion() + " loaded");
-
-
+        for(Player p : Bukkit.getOnlinePlayers()){
+            timer.put(p, 0);
+        }
         inv = Bukkit.createInventory(null, 27, ChatColor.MAGIC + "MENU");
         itemFill(inv, createItem(Material.BLUE_STAINED_GLASS_PANE, " "), 9, 1);
         inv.addItem(createItem(Material.DIAMOND, ChatColor.GREEN + "다이아 => 코인5"));
@@ -66,6 +62,24 @@ public class Main extends JavaPlugin implements Listener {
 
         menu = createItem(Material.ENCHANTED_BOOK, "메뉴");
         coin = createItem(Material.GOLD_NUGGET, ChatColor.GOLD + "코인");
+
+
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            @Override
+            public void run() {
+                for (Player p : Bukkit.getOnlinePlayers()){
+                    if (timer.get(p) > 0){
+                        timer.put(p, timer.get(p) - 1);
+                    }
+                }
+            }
+        },0L,20L);
+    }
+
+    @EventHandler
+    public void playerJoin(PlayerJoinEvent e){
+        Player p = e.getPlayer();
+        timer.put(p,0);
     }
 
     public ItemStack createItem(Material material, String name) {
@@ -208,6 +222,17 @@ public class Main extends JavaPlugin implements Listener {
         if (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             if (p.getInventory().getItemInMainHand().equals(menu)) {
                 p.openInventory(inv);
+            }else if (p.getInventory().getItemInMainHand().getType().equals(Material.IRON_INGOT)){
+                if ((timer.get(p) == 0) && (abillity.get(p) == 7))
+                {
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 2,false,false));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 100, 2,false,false));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 2,false,false));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 100, 2,false,false));
+                    timer.put(p, 30);
+                }else if ((timer.get(p) > 0) && (abillity.get(p) == 7)){
+                    p.sendMessage("쿨타임:" + timer.get(p) + "초");
+                }
             }
         }
     }
@@ -243,7 +268,7 @@ public class Main extends JavaPlugin implements Listener {
             } else if (abillity.get(p) == 6){//도박꾼
                 Random r = new Random();
                 if (p.getInventory().getItemInMainHand().getType().equals(Material.IRON_INGOT)) {
-                    if (r.nextInt(2) == 0) {
+                    if (r.nextInt(10) <= 5) {
                         p.setHealth(0);
                     } else {
                         ((LivingEntity) e.getEntity()).setHealth(0);
@@ -256,10 +281,13 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void shootArrow(EntityShootBowEvent e){
         Player p = ((Player)e.getEntity());
+       // projectile = e.getProjectile();
+        //projectile.setGravity(false);
         if (abillity.get(p) == 5){
             e.getProjectile().setVelocity(e.getProjectile().getVelocity().multiply(3));
             p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40,1,false, false,false));
         }
+
     }
 
     @Override
