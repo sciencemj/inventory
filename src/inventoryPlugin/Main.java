@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class Main extends JavaPlugin implements Listener {
-    private String[] abillitylist = new String[]{"이도류", "슬로우", "폭파범", "흡혈귀", "방패병", "궁수", "도박꾼", "신체강화", "무능력", "무능력"};
+    private String[] abillitylist = new String[]{"이도류", "슬로우", "폭파범", "흡혈귀", "방패병", "궁수", "도박꾼", "신체강화", "발광술사", "흑마술사"};
     private Inventory inv;
     private ItemStack menu;
     private ItemStack coin;
@@ -229,8 +229,34 @@ public class Main extends JavaPlugin implements Listener {
                     p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 100, 2,false,false));
                     p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 2,false,false));
                     p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 100, 2,false,false));
+                    timer.put(p, 20);
+                }else if ((timer.get(p) == 0) && (abillity.get(p) == 8)){
+                    for (Player ps : Bukkit.getOnlinePlayers()){
+                        if (ps != p) {
+                            ps.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 1, false, false));
+                            ps.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1, false, false));
+                        }
+                    }
                     timer.put(p, 30);
-                }else if ((timer.get(p) > 0) && (abillity.get(p) == 7)){
+                }else if ((timer.get(p) == 0) && (abillity.get(p) == 9)){
+                    Player nearest = null;
+                    for (Entity entity : p.getNearbyEntities(100,100,100)){
+                        if (entity instanceof Player){
+                            nearest = ((Player)entity);
+                            break;
+                        }
+                    }
+                    if (nearest != null){
+                        nearest.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1, false, false));
+                        nearest.addPotionEffect(new PotionEffect(PotionEffectType.BAD_OMEN, 100, 1, false, false));
+                        nearest.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 100, 1, false, false));
+                        nearest.damage(8);
+                        p.damage(4);
+                        timer.put(p, 30);
+                    }else {
+                        p.sendMessage("가까운 사람이 없습니다.");
+                    }
+                }else if ((timer.get(p) > 0)){
                     p.sendMessage("쿨타임:" + timer.get(p) + "초");
                 }
             }
