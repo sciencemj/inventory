@@ -234,7 +234,7 @@ public class Main extends JavaPlugin implements Listener {
                     for (Player ps : Bukkit.getOnlinePlayers()){
                         if (ps != p) {
                             ps.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 1, false, false));
-                            ps.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1, false, false));
+                            ps.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 1, false, false));
                         }
                     }
                     timer.put(p, 30);
@@ -251,6 +251,7 @@ public class Main extends JavaPlugin implements Listener {
                         nearest.addPotionEffect(new PotionEffect(PotionEffectType.BAD_OMEN, 100, 1, false, false));
                         nearest.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 100, 1, false, false));
                         nearest.damage(8);
+                        nearest.sendTitle("저주에 걸렸습니다", "",40,0,0);
                         p.damage(4);
                         timer.put(p, 30);
                     }else {
