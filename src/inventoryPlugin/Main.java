@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
@@ -27,13 +28,14 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class Main extends JavaPlugin implements Listener {
-    private String[] abillitylist = new String[]{"이도류", "슬로우", "폭파범", "흡혈귀", "방패병", "궁수", "도박꾼", "신체강화", "발광술사", "흑마술사"};
+    private String[] abillitylist = new String[]{"이도류", "슬로우", "폭파범", "흡혈귀", "방패병", "궁수", "도박꾼", "신체강화", "발광술사", "흑마술사", "자폭맨", "귀환!"};
     private Inventory inv;
     private ItemStack menu;
     private ItemStack coin;
     private Location spawn;
     public static HashMap<Player, Integer> abillity = new HashMap<Player, Integer>();
     public static HashMap<Player, Integer> timer = new HashMap<Player, Integer>();
+    public static HashMap<Player, Location> rememberedpos = new HashMap<Player, Location>();
     private Entity projectile;
 
     @Override
@@ -168,7 +170,7 @@ public class Main extends JavaPlugin implements Listener {
 
     public void setAbillity(Player p) {
         Random r = new Random();
-        abillity.put(p, r.nextInt(10));
+        abillity.put(p, r.nextInt(abillitylist.length));
         p.sendTitle("능력:" + abillitylist[abillity.get(p)], "", 20, 20, 20);
         p.closeInventory();
     }
@@ -257,6 +259,14 @@ public class Main extends JavaPlugin implements Listener {
                     }else {
                         p.sendMessage("가까운 사람이 없습니다.");
                     }
+                }else if (abillity.get(p) == 11){
+                    if (p.isSneaking()){
+                        rememberedpos.put(p, p.getLocation());
+                        p.sendMessage("위치가 기억되었습니다");
+                    }else if (timer.get(p) == 0){
+                        p.teleport(rememberedpos.get(p));
+                        timer.put(p, 90);
+                    }
                 }else if ((timer.get(p) > 0)){
                     p.sendMessage("쿨타임:" + timer.get(p) + "초");
                 }
@@ -315,6 +325,15 @@ public class Main extends JavaPlugin implements Listener {
             p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40,1,false, false,false));
         }
 
+    }
+
+    @EventHandler
+    public void playerDead(PlayerDeathEvent e){
+        Player p = e.getEntity();
+        if (abillity.get(p) == 10){
+            p.getWorld().createExplosion(p.getLocation(),3f);
+        }
+        e.setDeathMessage(p.getName() + " 은(는) " + p.getKiller().getName() + "에게 찔렸습니다 ㅋ");
     }
 
     @Override

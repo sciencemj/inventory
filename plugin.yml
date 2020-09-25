@@ -1,5 +1,5 @@
 name: inventory
-version: 1.0.3
+version: 1.0.4
 main: inventoryPlugin.Main
 description: inventory plugin
 
